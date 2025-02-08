@@ -1,9 +1,8 @@
 services:
-  hostwich:
+  channelemojis:
     container_name: channelemojis
-    ports:
-      - 5010:5010
     build: .
+    network_mode: host
     environment:
       - PUID=1000
       - PGID=1000

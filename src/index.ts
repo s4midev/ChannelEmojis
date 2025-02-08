@@ -13,7 +13,7 @@ const dataPath = getPathFromProjectRoot('/data.json');
 export const loadData = () => JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
 
 export const writeData = (data) =>
-	fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+	fs.writeFileSync(dataPath, JSON.stringify(data));
 
 app.use(
 	cors({
@@ -30,14 +30,9 @@ app.get('/', (req, res) => {
 });
 
 app.post('/getemoji', async (req, res) => {
-	console.log("got get emoji request");
-
 	const channelId = req.query.id as string;
 
 	const generate = req.query?.generate;
-
-	console.log(channelId);
-	console.log(generate);
 
 	if (!channelId) {
 		res.status(400).send('Provide a channel id');
@@ -49,25 +44,18 @@ app.post('/getemoji', async (req, res) => {
 	const emoji = data?.emojis?.[channelId];
 
 	if (!emoji) {
-		console.log("emoji does not exist");
+		console.log(`No emoji for ${channelId}`);
 
+		
 		if (generate) {
             const channel = req.body.channel;
-			
-			console.log(channel?.name);
 
             if(!channel) {
                 res.status(400).send("Generate flag passed, but no channel object was provided");
                 return;
             }
 
-			console.log("about to generate");
-
             const generateEmoji = await generateEmojiForChannel(channel);
-            
-			console.log("finished generating");
-			
-			console.log(generateEmoji);
 
             if(!generateEmoji) {
                 res.status(500).send("Failed to generate emoji");    
@@ -81,8 +69,6 @@ app.post('/getemoji', async (req, res) => {
 			);
 		}
 	} else {
-		console.log("emoji exists");
-		
 		res.send(emoji);
 	}
 });
